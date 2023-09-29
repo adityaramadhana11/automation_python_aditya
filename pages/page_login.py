@@ -4,7 +4,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from utils import webdriverfactory
 import time
+from base.selenium import selenium_driver as sd
+from utils.logger import LogGen
 
+log=LogGen.log()
 
 field_username = By.XPATH, "//input[@id='user-name']"
 field_password = By.XPATH, "//input[@id='password']"
@@ -16,37 +19,37 @@ text_username_blank = By.XPATH, "//h3[contains(text(),'Epic sadface: Username is
 class page_login:
 
     def login(driver,username,password):
-        driver.find_element(*field_username).send_keys(username)
-        driver.find_element(*field_password).send_keys(password)
-        driver.find_element(*button_login).click()
+        sd.sendkeys(driver, field_username, username)
+        sd.sendkeys(driver, field_password, password)
+        sd.click(driver, button_login)
 
     def login_success(driver, username, password):   
         page_login.login(driver, username, password)
-        header_text = driver.find_element(*header_homepage).text
+        header_text = sd.gettext(driver, header_homepage)
         if header_text == 'Swag Labs':
-            print("login success")
+            log.info("login success")
             assert True
         else:
-            print("login failed")
+            log.error("login failed")
             assert False
 
     def login_failed(driver, username, password):   
         page_login.login(driver, username, password)
-        text_failed = driver.find_element(*text_login_failed).text
+        text_failed = sd.gettext(driver, text_login_failed)
         if text_failed == 'Epic sadface: Username and password do not match any user in this service':
-            print("text match")
+            log.info(f"text match\nexpected: Epic sadface: Username and password do not match any user in this service\nactual: {text_failed}")
             assert True
         else:
-            print("text not match")
+            log.error(f"text not match\nexpected: Epic sadface: Username and password do not match any user in this service\nactual: {text_failed}")
             assert False
 
     def login_username_empty(driver, username, password):   
         page_login.login(driver, username, password)
-        text_failed = driver.find_element(*text_username_blank).text
+        text_failed =sd.gettext(driver, text_username_blank)
         if text_failed == 'Epic sadface: Username is required':
-            print("text match")
+            log.info(f"text match\nexpected: Epic sadface: Username is required\nactual: {text_failed}")
             assert True
         else:
-            print("text not match")
+            log.error(f"text not match\nexpected: Epic sadface: Username is required\nactual: {text_failed}")
             assert False
     
